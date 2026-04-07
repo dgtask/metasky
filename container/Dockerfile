@@ -10,23 +10,23 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uvx /usr/local/bin/uvx
 # Install system packages (organized by category)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # --- Browser & fonts ---
-    chromium \
-    fonts-liberation \
-    fonts-noto-color-emoji \
+    # chromium \
+    # fonts-liberation \
+    # fonts-noto-color-emoji \
     # --- Chromium shared library deps ---
-    libgbm1 \
-    libnss3 \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    libx11-xcb1 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxrandr2 \
-    libasound2 \
-    libpangocairo-1.0-0 \
-    libcups2 \
-    libdrm2 \
-    libxshmfence1 \
+    # libgbm1 \
+    # libnss3 \
+    # libatk-bridge2.0-0 \
+    # libgtk-3-0 \
+    # libx11-xcb1 \
+    # libxcomposite1 \
+    # libxdamage1 \
+    # libxrandr2 \
+    # libasound2 \
+    # libpangocairo-1.0-0 \
+    # libcups2 \
+    # libdrm2 \
+    # libxshmfence1 \
     # --- Build tools & compilers ---
     build-essential \
     cmake \
@@ -49,10 +49,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     patch \
     rsync \
     # --- Compression ---
-    zip \
-    unzip \
-    xz-utils \
-    bzip2 \
+    # zip \
+    # unzip \
+    # xz-utils \
+    # bzip2 \
     # --- Network ---
     openssh-client \
     dnsutils \
@@ -65,10 +65,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fd-find \
     shellcheck \
     # --- Multimedia ---
-    ffmpeg \
-    imagemagick \
-    ghostscript \
-    graphviz \
+    # ffmpeg \
+    # imagemagick \
+    # ghostscript \
+    # graphviz \
     # --- Document & PDF ---
     poppler-utils \
     pandoc \
