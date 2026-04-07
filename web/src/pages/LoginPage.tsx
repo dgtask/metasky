@@ -64,7 +64,13 @@ export function LoginPage() {
       const mustChange = useAuthStore.getState().user?.must_change_password;
       navigate(mustChange ? '/settings' : '/chat');
     } catch (err) {
-      setError(err instanceof Error ? err.message : typeof err === 'object' && err !== null && 'message' in err ? String((err as { message: unknown }).message) : '登录失败');
+      setError(
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' && err !== null && 'message' in err
+            ? String((err as { message: unknown }).message)
+            : '登录失败',
+      );
     } finally {
       setLoading(false);
     }
@@ -80,79 +86,91 @@ export function LoginPage() {
         <Card>
           <CardContent>
             {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto">
-              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="HappyClaw" className="w-full h-full object-cover" />
-            </div>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-2xl font-bold text-foreground text-center mb-2">
-            欢迎使用 HappyClaw
-          </h1>
-          <p className="text-muted-foreground text-center mb-6">
-            请登录以继续
-          </p>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-3 bg-error-bg border border-error/30 rounded-md">
-              <p className="text-sm text-error">{error}</p>
-            </div>
-          )}
-
-          {/* Login Form */}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <Label htmlFor="username" className="mb-1">
-                用户名
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                autoFocus
-              />
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto">
+                <img
+                  src={`${import.meta.env.BASE_URL}icons/icon-192.png`}
+                  alt="元小天"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
 
-            <div className="mb-6">
-              <Label htmlFor="password" className="mb-1">
-                密码
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading && <Loader2 className="size-4 animate-spin" />}
-              {loading ? '登录中...' : '登录'}
-            </Button>
-          </form>
-
-          {/* Register Link — hidden when registration is disabled */}
-          {regStatus.allowRegistration && (
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              {regStatus.requireInviteCode ? '有邀请码？' : '还没有账户？'}
-              <Link to="/register" className="text-primary hover:text-primary/80 ml-1">
-                去注册
-              </Link>
+            {/* Title */}
+            <h1 className="text-2xl font-bold text-foreground text-center mb-2">
+              欢迎使用 元小天
+            </h1>
+            <p className="text-muted-foreground text-center mb-6">
+              请登录以继续
             </p>
-          )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-error-bg border border-error/30 rounded-md">
+                <p className="text-sm text-error">{error}</p>
+              </div>
+            )}
+
+            {/* Login Form */}
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <Label htmlFor="username" className="mb-1">
+                  用户名
+                </Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="mb-6">
+                <Label htmlFor="password" className="mb-1">
+                  密码
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading && <Loader2 className="size-4 animate-spin" />}
+                {loading ? '登录中...' : '登录'}
+              </Button>
+            </form>
+
+            {/* Register Link — hidden when registration is disabled */}
+            {regStatus.allowRegistration && (
+              <p className="text-center text-sm text-muted-foreground mt-4">
+                {regStatus.requireInviteCode ? '有邀请码？' : '还没有账户？'}
+                <Link
+                  to="/register"
+                  className="text-primary hover:text-primary/80 ml-1"
+                >
+                  去注册
+                </Link>
+              </p>
+            )}
           </CardContent>
         </Card>
 
         {/* Footer */}
         <p className="text-center text-sm text-muted-foreground mt-4">
-          HappyClaw - Powered by{' '}
-          <a href="https://github.com/riba2534" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
-            riba2534
+          元小天 - Powered by{' '}
+          <a
+            href="https://www.myxerp.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:text-primary/80"
+          >
+            MetaSky
           </a>
         </p>
       </div>

@@ -73,7 +73,12 @@ export function RegisterPage() {
 
     setLoading(true);
     try {
-      const payload: { username: string; password: string; display_name?: string; invite_code?: string } = {
+      const payload: {
+        username: string;
+        password: string;
+        display_name?: string;
+        invite_code?: string;
+      } = {
         username,
         password,
         display_name: displayName || undefined,
@@ -115,7 +120,11 @@ export function RegisterPage() {
             <CardContent>
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto">
-                  <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="HappyClaw" className="w-full h-full object-cover" />
+                  <img
+                    src={`${import.meta.env.BASE_URL}icons/icon-192.png`}
+                    alt="元小天"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
               <h1 className="text-2xl font-bold text-foreground text-center mb-2">
@@ -143,105 +152,117 @@ export function RegisterPage() {
         <Card>
           <CardContent>
             {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto">
-              <img src={`${import.meta.env.BASE_URL}icons/icon-192.png`} alt="HappyClaw" className="w-full h-full object-cover" />
-            </div>
-          </div>
-
-          <h1 className="text-2xl font-bold text-foreground text-center mb-2">
-            注册新账户
-          </h1>
-          <p className="text-muted-foreground text-center mb-6">
-            {status.requireInviteCode ? '需要邀请码才能注册' : '创建你的账户'}
-          </p>
-
-          {error && (
-            <div className="mb-4 p-3 bg-error-bg border border-error/30 rounded-md">
-              <p className="text-sm text-error">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            {status.requireInviteCode && (
-              <div className="mb-4">
-                <Label htmlFor="invite_code" className="mb-1">
-                  邀请码
-                </Label>
-                <Input
-                  id="invite_code"
-                  type="text"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                  className="font-mono"
-                  placeholder="请输入邀请码"
-                  required
-                  autoFocus
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto">
+                <img
+                  src={`${import.meta.env.BASE_URL}icons/icon-192.png`}
+                  alt="元小天"
+                  className="w-full h-full object-cover"
                 />
+              </div>
+            </div>
+
+            <h1 className="text-2xl font-bold text-foreground text-center mb-2">
+              注册新账户
+            </h1>
+            <p className="text-muted-foreground text-center mb-6">
+              {status.requireInviteCode ? '需要邀请码才能注册' : '创建你的账户'}
+            </p>
+
+            {error && (
+              <div className="mb-4 p-3 bg-error-bg border border-error/30 rounded-md">
+                <p className="text-sm text-error">{error}</p>
               </div>
             )}
 
-            <div className="mb-4">
-              <Label htmlFor="reg-username" className="mb-1">
-                用户名
-              </Label>
-              <Input
-                id="reg-username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="3-32位字母、数字或下划线"
-                required
-                autoFocus={!status.requireInviteCode}
-              />
-            </div>
+            <form onSubmit={handleSubmit}>
+              {status.requireInviteCode && (
+                <div className="mb-4">
+                  <Label htmlFor="invite_code" className="mb-1">
+                    邀请码
+                  </Label>
+                  <Input
+                    id="invite_code"
+                    type="text"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    className="font-mono"
+                    placeholder="请输入邀请码"
+                    required
+                    autoFocus
+                  />
+                </div>
+              )}
 
-            <div className="mb-4">
-              <Label htmlFor="reg-display-name" className="mb-1">
-                显示名称 <span className="text-muted-foreground">(可选)</span>
-              </Label>
-              <Input
-                id="reg-display-name"
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="留空则使用用户名"
-              />
-            </div>
+              <div className="mb-4">
+                <Label htmlFor="reg-username" className="mb-1">
+                  用户名
+                </Label>
+                <Input
+                  id="reg-username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="3-32位字母、数字或下划线"
+                  required
+                  autoFocus={!status.requireInviteCode}
+                />
+              </div>
 
-            <div className="mb-6">
-              <Label htmlFor="reg-password" className="mb-1">
-                密码
-              </Label>
-              <Input
-                id="reg-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="至少 8 位"
-                required
-              />
-            </div>
+              <div className="mb-4">
+                <Label htmlFor="reg-display-name" className="mb-1">
+                  显示名称 <span className="text-muted-foreground">(可选)</span>
+                </Label>
+                <Input
+                  id="reg-display-name"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="留空则使用用户名"
+                />
+              </div>
 
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading && <Loader2 className="size-4 animate-spin" />}
-              {loading ? '注册中...' : '注册'}
-            </Button>
-          </form>
+              <div className="mb-6">
+                <Label htmlFor="reg-password" className="mb-1">
+                  密码
+                </Label>
+                <Input
+                  id="reg-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="至少 8 位"
+                  required
+                />
+              </div>
 
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            已有账户？
-            <Link to="/login" className="text-primary hover:text-primary/80 ml-1">
-              去登录
-            </Link>
-          </p>
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading && <Loader2 className="size-4 animate-spin" />}
+                {loading ? '注册中...' : '注册'}
+              </Button>
+            </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-2">
-            HappyClaw - Powered by{' '}
-            <a href="https://github.com/riba2534" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
-              riba2534
-            </a>
-          </p>
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              已有账户？
+              <Link
+                to="/login"
+                className="text-primary hover:text-primary/80 ml-1"
+              >
+                去登录
+              </Link>
+            </p>
+
+            <p className="text-center text-sm text-muted-foreground mt-2">
+              元小天 - Powered by{' '}
+              <a
+                href="https://www.myxerp.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80"
+              >
+                MetaSky
+              </a>
+            </p>
           </CardContent>
         </Card>
       </div>
