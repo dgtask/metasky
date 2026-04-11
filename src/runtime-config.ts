@@ -1670,7 +1670,9 @@ export function saveFeishuProviderConfig(
     appId: normalized.appId,
     enabled: normalized.enabled,
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<FeishuSecretPayload>({ appSecret: normalized.appSecret }),
+    secret: encryptChannelSecret<FeishuSecretPayload>({
+      appSecret: normalized.appSecret,
+    }),
   };
 
   fs.mkdirSync(CLAUDE_CONFIG_DIR, { recursive: true });
@@ -1765,7 +1767,9 @@ export function saveTelegramProviderConfig(
     proxyUrl: normalized.proxyUrl,
     enabled: normalized.enabled,
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<TelegramSecretPayload>({ botToken: normalized.botToken }),
+    secret: encryptChannelSecret<TelegramSecretPayload>({
+      botToken: normalized.botToken,
+    }),
   };
 
   fs.mkdirSync(CLAUDE_CONFIG_DIR, { recursive: true });
@@ -2738,7 +2742,9 @@ export function writeCredentialsFile(
   // Claude CLI requires scopes to recognize the token as valid.
   // Fall back to a sensible default when the stored credentials lack scopes
   // (e.g. tokens imported before scopes were captured).
-  const scopes = creds.scopes?.length ? creds.scopes : DEFAULT_CREDENTIAL_SCOPES;
+  const scopes = creds.scopes?.length
+    ? creds.scopes
+    : DEFAULT_CREDENTIAL_SCOPES;
 
   const claudeAiOauth: {
     accessToken: string;
@@ -3025,6 +3031,7 @@ export interface UserDingTalkConfig {
   clientId: string;
   clientSecret: string;
   enabled?: boolean;
+  streamingMode?: 'card' | 'text';
   updatedAt: string | null;
 }
 
@@ -3032,12 +3039,32 @@ interface StoredDingTalkProviderConfigV1 {
   version: 1;
   clientId: string;
   enabled?: boolean;
+  streamingMode?: 'card' | 'text';
   updatedAt: string;
   secret: EncryptedSecrets;
 }
 
 interface DingTalkSecretPayload {
   clientSecret: string;
+}
+
+export interface UserDiscordConfig {
+  botToken: string;
+  enabled?: boolean;
+  streamingMode?: 'edit' | 'off';
+  updatedAt: string | null;
+}
+
+interface StoredDiscordProviderConfigV1 {
+  version: 1;
+  enabled?: boolean;
+  streamingMode?: 'edit' | 'off';
+  updatedAt: string;
+  secret: EncryptedSecrets;
+}
+
+interface DiscordSecretPayload {
+  botToken: string;
 }
 
 interface StoredQQProviderConfigV1 {
@@ -3097,7 +3124,9 @@ export function saveUserFeishuConfig(
     appId: normalized.appId,
     enabled: normalized.enabled,
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<FeishuSecretPayload>({ appSecret: normalized.appSecret }),
+    secret: encryptChannelSecret<FeishuSecretPayload>({
+      appSecret: normalized.appSecret,
+    }),
   };
 
   const dir = userImDir(userId);
@@ -3152,7 +3181,9 @@ export function saveUserTelegramConfig(
     proxyUrl: normalizedProxyUrl || undefined,
     enabled: normalized.enabled,
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<TelegramSecretPayload>({ botToken: normalized.botToken }),
+    secret: encryptChannelSecret<TelegramSecretPayload>({
+      botToken: normalized.botToken,
+    }),
   };
 
   const dir = userImDir(userId);
@@ -3204,7 +3235,9 @@ export function saveUserQQConfig(
     appId: normalized.appId,
     enabled: normalized.enabled,
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<QQSecretPayload>({ appSecret: normalized.appSecret }),
+    secret: encryptChannelSecret<QQSecretPayload>({
+      appSecret: normalized.appSecret,
+    }),
   };
 
   const dir = userImDir(userId);
@@ -3295,7 +3328,9 @@ export function saveUserWeChatConfig(
     bypassProxy: normalized.bypassProxy,
     enabled: normalized.enabled,
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<WeChatSecretPayload>({ botToken: normalized.botToken }),
+    secret: encryptChannelSecret<WeChatSecretPayload>({
+      botToken: normalized.botToken,
+    }),
   };
 
   const dir = userImDir(userId);
@@ -3325,6 +3360,7 @@ export function getUserDingTalkConfig(
       clientId: ((stored.clientId as string) ?? '').trim(),
       clientSecret: secret.clientSecret,
       enabled: stored.enabled,
+      streamingMode: stored.streamingMode === 'text' ? 'text' : 'card',
       updatedAt: stored.updatedAt || null,
     };
   } catch (err) {
@@ -3341,6 +3377,7 @@ export function saveUserDingTalkConfig(
     clientId: ((next.clientId as string) ?? '').trim(),
     clientSecret: normalizeSecret(next.clientSecret, 'clientSecret'),
     enabled: next.enabled,
+    streamingMode: next.streamingMode === 'text' ? 'text' : 'card',
     updatedAt: new Date().toISOString(),
   };
 
@@ -3348,13 +3385,72 @@ export function saveUserDingTalkConfig(
     version: 1,
     clientId: normalized.clientId,
     enabled: normalized.enabled,
+    streamingMode: normalized.streamingMode === 'text' ? 'text' : 'card',
     updatedAt: normalized.updatedAt || new Date().toISOString(),
-    secret: encryptChannelSecret<DingTalkSecretPayload>({ clientSecret: normalized.clientSecret }),
+    secret: encryptChannelSecret<DingTalkSecretPayload>({
+      clientSecret: normalized.clientSecret,
+    }),
   };
 
   const dir = userImDir(userId);
   fs.mkdirSync(dir, { recursive: true });
   const filePath = path.join(dir, 'dingtalk.json');
+  const tmp = `${filePath}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(payload, null, 2) + '\n', 'utf-8');
+  fs.renameSync(tmp, filePath);
+  return normalized;
+}
+
+// ========== Discord User IM Config ==========
+
+export function getUserDiscordConfig(
+  userId: string,
+): UserDiscordConfig | null {
+  const filePath = path.join(userImDir(userId), 'discord.json');
+  try {
+    if (!fs.existsSync(filePath)) return null;
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const parsed = JSON.parse(content) as Record<string, unknown>;
+    if (parsed.version !== 1) return null;
+
+    const stored = parsed as unknown as StoredDiscordProviderConfigV1;
+    const secret = decryptChannelSecret<DiscordSecretPayload>(stored.secret);
+    return {
+      botToken: secret.botToken,
+      enabled: stored.enabled,
+      streamingMode: stored.streamingMode === 'edit' ? 'edit' : 'off',
+      updatedAt: stored.updatedAt || null,
+    };
+  } catch (err) {
+    logger.warn({ err, userId }, 'Failed to read user Discord config');
+    return null;
+  }
+}
+
+export function saveUserDiscordConfig(
+  userId: string,
+  next: Omit<UserDiscordConfig, 'updatedAt'>,
+): UserDiscordConfig {
+  const normalized: UserDiscordConfig = {
+    botToken: normalizeSecret(next.botToken, 'botToken'),
+    enabled: next.enabled,
+    streamingMode: next.streamingMode === 'edit' ? 'edit' : 'off',
+    updatedAt: new Date().toISOString(),
+  };
+
+  const payload: StoredDiscordProviderConfigV1 = {
+    version: 1,
+    enabled: normalized.enabled,
+    streamingMode: normalized.streamingMode,
+    updatedAt: normalized.updatedAt || new Date().toISOString(),
+    secret: encryptChannelSecret<DiscordSecretPayload>({
+      botToken: normalized.botToken,
+    }),
+  };
+
+  const dir = userImDir(userId);
+  fs.mkdirSync(dir, { recursive: true });
+  const filePath = path.join(dir, 'discord.json');
   const tmp = `${filePath}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(payload, null, 2) + '\n', 'utf-8');
   fs.renameSync(tmp, filePath);
@@ -3386,6 +3482,8 @@ export interface SystemSettings {
   billingCurrencyRate: number;
   // External Claude directory (admin only)
   externalClaudeDir: string;
+  // Claude Agent SDK 自动对话压缩触发点（tokens）。0 = 保留 SDK 默认（约 1M）
+  autoCompactWindow: number;
 }
 
 const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
@@ -3404,6 +3502,7 @@ const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   billingCurrency: 'USD',
   billingCurrencyRate: 1,
   externalClaudeDir: '',
+  autoCompactWindow: 0,
 };
 
 function parseIntEnv(envVar: string | undefined, fallback: number): number {
@@ -3490,6 +3589,10 @@ function readSystemSettingsFromFile(): SystemSettings | null {
       typeof raw.externalClaudeDir === 'string'
         ? raw.externalClaudeDir.trim()
         : DEFAULT_SYSTEM_SETTINGS.externalClaudeDir,
+    autoCompactWindow:
+      typeof raw.autoCompactWindow === 'number' && raw.autoCompactWindow >= 0
+        ? raw.autoCompactWindow
+        : DEFAULT_SYSTEM_SETTINGS.autoCompactWindow,
   };
 }
 
@@ -3547,6 +3650,10 @@ function buildEnvFallbackSettings(): SystemSettings {
     ),
     externalClaudeDir:
       process.env.EXTERNAL_CLAUDE_DIR || DEFAULT_SYSTEM_SETTINGS.externalClaudeDir,
+    autoCompactWindow: parseIntEnv(
+      process.env.AUTO_COMPACT_WINDOW,
+      DEFAULT_SYSTEM_SETTINGS.autoCompactWindow,
+    ),
   };
 }
 
@@ -3632,6 +3739,17 @@ export function saveSystemSettings(
   if (merged.billingMinStartBalanceUsd > 1000000)
     merged.billingMinStartBalanceUsd = 1000000;
 
+  // autoCompactWindow: 0 表示禁用（使用 SDK 默认），>0 必须在 [10000, 2000000] 范围
+  if (
+    merged.autoCompactWindow < 0 ||
+    !Number.isFinite(merged.autoCompactWindow)
+  ) {
+    merged.autoCompactWindow = 0;
+  } else if (merged.autoCompactWindow > 0) {
+    if (merged.autoCompactWindow < 10000) merged.autoCompactWindow = 10000;
+    if (merged.autoCompactWindow > 2000000) merged.autoCompactWindow = 2000000;
+  }
+
   // Validate externalClaudeDir: must be empty or an absolute directory path
   if (merged.externalClaudeDir) {
     const trimmed = merged.externalClaudeDir.trim();
@@ -3675,10 +3793,9 @@ export interface OAuthUsageBucket {
  * 运行时类型守卫，验证 API 响应结构
  */
 export function parseOAuthUsageBucket(v: unknown): OAuthUsageBucket | null {
-  if (!v || typeof v !== "object") return null;
+  if (!v || typeof v !== 'object') return null;
   const obj = v as Record<string, unknown>;
-  if (typeof obj.utilization !== "number" || typeof obj.resets_at !== "string")
+  if (typeof obj.utilization !== 'number' || typeof obj.resets_at !== 'string')
     return null;
   return { utilization: obj.utilization, resets_at: obj.resets_at };
 }
-
